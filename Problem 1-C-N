@@ -6,38 +6,40 @@
 clc;
 clear;
 h = 0.05; % step size for space variable
-k = 0.005; % step size for time variable
+t = 0.005; % step size for time variable
 xgrid = h:h:pi;
-tgrid = 0:k:0.05;
+tgrid = 0:t:0.05;
 n = length(xgrid);
 m = length(tgrid);
 [X, T] = meshgrid(tgrid,xgrid);
 u = zeros(n,m); % numerical solution
 v = zeros(n,m); % exact solution
 b = zeros(n); % RHS of matrix equation
-s = h^2/k; 
-r = 2.0 + s; %main diagonal
+s = h^2/t; 
+r = 0.1*s; %main diagonal
+sd=-r/2;
+k=1;
 % set up the matrix A to be inverted
 % A is tridiagonal and diagonally dominant
 A = zeros(n);
 for i=2:n-1
     A(i,i) = r;
-    A(i,i+1) = -1;
-    A(i,i-1) = -1;
+    A(i,i+1) = sd;
+    A(i,i-1) = sd;
 end
 A(1,1) = r;
-A(1,2) = -1; %sub diagonal
+A(1,2) = sd; %sub diagonal
 A(n,n) = r;
-A(n,n-1) = -1; %sub diagonal
+A(n,n-1) = sd; %sub diagonal
 
 % initial conditions
-u(:,1) = sin(pi*xgrid);
+u(:,1) = sin(k*xgrid); % k is chosen arbritrarily
 
 % loop over time. At each time step the system Ax=b is solved. The method
 % is based on Crank-Nicolson.
-for k = 1:m-1
-    b = s*u(:,k);
-    u(:,k+1) = A \ b;
+for t = 1:m-1
+    b = s*u(:,t);
+    u(:,t+1) = A \ b;
 end
 
 % exact solution
