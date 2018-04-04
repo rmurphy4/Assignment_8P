@@ -1,0 +1,69 @@
+% This code solves the heat diffusion equation. The temperature, u(x,t), is solved for and plotted in
+% time and space. The boundary conditions are u(x=0,t) = u(x=L,t) = 0.0
+% and u(x,t=0) = sin(k*x).
+% The exact solution is u(x,t) = exp(-D*k^2*t) sin(k*x). The rod
+% exponentially decays to zero temperature.
+clc;
+clear;
+h = 0.05; % step size for space variable
+t = 0.005; % step size for time variable
+xgrid = h:h:pi;
+tgrid = 0:t:0.05;
+n = length(xgrid);
+m = length(tgrid);
+[X, T] = meshgrid(tgrid,xgrid);
+u = zeros(n,m); % numerical solution
+v = zeros(n,m); % exact solution
+b = zeros(n); % RHS of matrix equation
+s = t/h^2; 
+r = 0.1*s; %main diagonal
+sd=-r/2
+% set up the matrix A to be inverted
+% A is tridiagonal and diagonally dominant
+A = zeros(n);
+for i=2:n-1
+    A(i,i) = r;
+    A(i,i+1) = sd;
+    A(i,i-1) = sd;
+end
+A(1,1) = r;
+A(1,2) = sd; %sub diagonal
+A(n,n) = r;
+A(n,n-1) = sd; %sub diagonal
+
+% initial conditions
+u(:,1) = sin(s*xgrid);
+
+% loop with fixed time. As omega changes, the system Ax=b is solved. 
+for t = 1:m-1
+    b = s*u(:,t);
+    u(:,t+1) = A \ b;
+end
+% final conditions
+u(:,1)=
+% exact solution
+for j=1:m
+   for i=1:n
+       v(i,j) = exp(-0.1*1^2*tgrid)*sin(1*xgrid) %1 in this case represents k. 
+   end
+end
+
+figure
+subplot(1,2,1)
+surf(X,T,u)
+title('Numerical Solution','fontsize',20)
+xlabel('Time','fontsize',20)
+ylabel('Length','fontsize',20)
+zlabel('Temperature','fontsize',20)
+shading interp;
+subplot(1,2,2)
+surf(X,T,v)
+title('Exact Solution','fontsize',20)
+xlabel('Time','fontsize',20)
+ylabel('Length','fontsize',20)
+zlabel('Temperature','fontsize',20)
+shading interp;
+
+%Calculating error
+error=1/10*sum(abs((u-v)/v));
+error=error(1,10)
